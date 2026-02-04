@@ -6,37 +6,71 @@ logger = get_logger()
 
 FILE_PATH = "raw_data/dirty_students.csv"
 
+
 def read_csv():
+    # simple function to read file
     try:
-        return pd.read_csv(FILE_PATH)
-    except Exception as e:
-        logger.error(e)
+        data = pd.read_csv(FILE_PATH)
+        return data
+    except Exception as err:
+        logger.error("Error reading file: " + str(err))
         return None
 
-def append_student(name, age, cls, m, s, e):
+
+def append_student(name, age, cls, maths, science, english):
     try:
-        if validate_name(name) != True: return validate_name(name)
-        if validate_age(age) != True: return validate_age(age)
-        for mark in [m, s, e]:
-            if validate_marks(mark) != True: return validate_marks(mark)
+        # checking name
+        result = validate_name(name)
+        if result != True:
+            return result
+
+        # checking age
+        result = validate_age(age)
+        if result != True:
+            return result
+
+        # checking marks
+        marks = [maths, science, english]
+        for m in marks:
+            result = validate_marks(m)
+            if result != True:
+                return result
 
         df = pd.read_csv(FILE_PATH)
-        new_row = {"Name": name, "Age": age, "Class": cls, "Maths": m, "Science": s, "English": e}
-        df.loc[len(df)] = new_row
+
+        # create dictionary for new row
+        row = {
+            "Name": name,
+            "Age": age,
+            "Class": cls,
+            "Maths": maths,
+            "Science": science,
+            "English": english
+        }
+
+        df.loc[len(df)] = row
         df.to_csv(FILE_PATH, index=False)
-        logger.info("Student added")
-        return "Student added successfully"
-    except Exception as e:
-        logger.error(e)
-        return str(e)
+
+        logger.info("Added new student")
+        return "Student added"
+
+    except Exception as err:
+        logger.error("Error adding student: " + str(err))
+        return "Something went wrong"
+
 
 def delete_student(name):
     try:
         df = pd.read_csv(FILE_PATH)
+
+        # remove student
         df = df[df["Name"] != name]
+
         df.to_csv(FILE_PATH, index=False)
-        logger.info("Student deleted")
-        return "Deleted"
-    except Exception as e:
-        logger.error(e)
-        return str(e)
+        logger.info("Deleted student " + name)
+
+        return "Student removed"
+
+    except Exception as err:
+        logger.error("Error deleting student: " + str(err))
+        return "Delete failed"
