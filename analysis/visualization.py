@@ -17,7 +17,7 @@ def visualize():
         df["Percentage"] = df["Total"] / 3
 
         # -------------------------------
-        # 1️⃣ Average Marks per Subject
+        # Average Marks per Subject
         subject_avg = df[["Maths","Science","English"]].mean()
         plt.figure()
         subject_avg.plot(kind="bar", title="Average Marks per Subject")
@@ -26,7 +26,7 @@ def visualize():
         plt.close()
 
         # -------------------------------
-        # 2️⃣ Student Percentage Comparison
+        # Student Percentage Comparison
         plt.figure(figsize=(10,5))
         plt.bar(df["Name"], df["Percentage"])
         plt.title("Student Percentage Comparison")
@@ -37,7 +37,7 @@ def visualize():
         plt.close()
 
         # -------------------------------
-        # 3️⃣ Percentage Histogram
+        # Percentage Histogram
         plt.figure()
         plt.hist(df["Percentage"], bins=10)
         plt.title("Percentage Distribution")
@@ -47,7 +47,7 @@ def visualize():
         plt.close()
 
         # -------------------------------
-        # 4️⃣ Correlation Heatmap
+        #Correlation Heatmap
         plt.figure(figsize=(8,6))
         sns.heatmap(df[["Maths","Science","English","Age"]].corr(), annot=True)
         plt.title("Correlation Heatmap")
@@ -55,7 +55,7 @@ def visualize():
         plt.close()
 
         # -------------------------------
-        # 5️⃣ Box Plot (Outliers)
+        # Box Plot (Outliers)
         plt.figure()
         sns.boxplot(data=df[["Maths","Science","English"]])
         plt.title("Marks Outliers Boxplot")
