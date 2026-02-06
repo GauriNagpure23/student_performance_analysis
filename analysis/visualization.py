@@ -1,30 +1,27 @@
+# analysis/visualization.py
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# Create graphs folder
-os.makedirs("graphs", exist_ok=True)
-
-# Load cleaned data
-df = pd.read_csv("cleaned_data/clean_students.csv")
-
+# Subjects list
 subjects = ["Maths", "Science", "English"]
 
 
 # ==============================
-# 1️⃣ BAR GRAPH - Average Marks
+# BAR GRAPH - Average Marks
 # ==============================
-def bar_avg_marks():
+def bar_avg_marks(df):
     avg_marks = df[subjects].mean()
 
-    plt.figure(figsize=(6,4))
+    plt.figure(figsize=(6, 4))
     bars = plt.bar(subjects, avg_marks)
 
-    # Add labels
+    # Add labels on bars
     for bar in bars:
         y = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, y, round(y,2), ha='center')
+        plt.text(bar.get_x() + bar.get_width()/2, y, round(y, 2), ha="center")
 
     plt.title("Average Marks of Class 10 Students")
     plt.ylabel("Marks")
@@ -33,13 +30,13 @@ def bar_avg_marks():
 
 
 # ==============================
-# 2️⃣ LINE GRAPH - Student Percentage Trend
+# LINE GRAPH - Student Percentage Trend
 # ==============================
-def line_percentage():
+def line_percentage(df):
     df["Percentage"] = df[subjects].mean(axis=1)
 
-    plt.figure(figsize=(8,4))
-    plt.plot(df["ID"], df["Percentage"], marker='o')
+    plt.figure(figsize=(8, 4))
+    plt.plot(df["ID"], df["Percentage"], marker="o")
     plt.title("Student Percentage Trend")
     plt.xlabel("Student ID")
     plt.ylabel("Percentage")
@@ -48,10 +45,10 @@ def line_percentage():
 
 
 # ==============================
-# 3️⃣ HISTOGRAM - Marks Distribution
+# HISTOGRAM - Maths Marks Distribution
 # ==============================
-def histogram_marks():
-    plt.figure(figsize=(6,4))
+def histogram_marks(df):
+    plt.figure(figsize=(6, 4))
     plt.hist(df["Maths"], bins=10)
     plt.title("Maths Marks Distribution")
     plt.xlabel("Marks")
@@ -61,12 +58,12 @@ def histogram_marks():
 
 
 # ==============================
-# 4️⃣ SCATTER PLOT - Age vs Percentage
+# SCATTER PLOT - Age vs Percentage
 # ==============================
-def scatter_age_percentage():
+def scatter_age_percentage(df):
     df["Percentage"] = df[subjects].mean(axis=1)
 
-    plt.figure(figsize=(6,4))
+    plt.figure(figsize=(6, 4))
     plt.scatter(df["Age"], df["Percentage"])
     plt.title("Age vs Percentage")
     plt.xlabel("Age")
@@ -76,10 +73,10 @@ def scatter_age_percentage():
 
 
 # ==============================
-# 5️⃣ HEATMAP - Correlation
+# HEATMAP - Correlation
 # ==============================
-def heatmap_correlation():
-    plt.figure(figsize=(6,4))
+def heatmap_correlation(df):
+    plt.figure(figsize=(6, 4))
     corr = df[subjects + ["Age"]].corr()
     sns.heatmap(corr, annot=True)
     plt.title("Correlation Heatmap")
@@ -88,10 +85,10 @@ def heatmap_correlation():
 
 
 # ==============================
-# 6️⃣ BOX PLOT - Outliers Detection
+# BOX PLOT - Outliers
 # ==============================
-def box_plot_marks():
-    plt.figure(figsize=(6,4))
+def box_plot_marks(df):
+    plt.figure(figsize=(6, 4))
     sns.boxplot(data=df[subjects])
     plt.title("Box Plot for Marks")
     plt.savefig("graphs/box_marks.png")
@@ -99,10 +96,10 @@ def box_plot_marks():
 
 
 # ==============================
-# 7️⃣ VIOLIN PLOT - Marks Distribution Shape
+# VIOLIN PLOT - Distribution Shape
 # ==============================
-def violin_plot_marks():
-    plt.figure(figsize=(6,4))
+def violin_plot_marks(df):
+    plt.figure(figsize=(6, 4))
     sns.violinplot(data=df[subjects])
     plt.title("Violin Plot for Marks")
     plt.savefig("graphs/violin_marks.png")
@@ -110,18 +107,33 @@ def violin_plot_marks():
 
 
 # ==============================
-# RUN ALL GRAPHS
+# MAIN VISUALIZE FUNCTION
 # ==============================
-def generate_all_graphs():
-    bar_avg_marks()
-    line_percentage()
-    histogram_marks()
-    scatter_age_percentage()
-    heatmap_correlation()
-    box_plot_marks()
-    violin_plot_marks()
-    print("All graphs saved in graphs/ folder")
+def visualize():
+    try:
+        print("📊 Loading cleaned dataset...")
+
+        # Create graphs folder
+        os.makedirs("graphs", exist_ok=True)
+
+        # Load cleaned data
+        df = pd.read_csv("cleaned_data/clean_students.csv")
+
+        # Run all graphs
+        bar_avg_marks(df)
+        line_percentage(df)
+        histogram_marks(df)
+        scatter_age_percentage(df)
+        heatmap_correlation(df)
+        box_plot_marks(df)
+        violin_plot_marks(df)
+
+        print("✅ All graphs saved in graphs/ folder")
+
+    except Exception as e:
+        print("❌ Visualization Error:", e)
 
 
+# Run directly (optional)
 if __name__ == "__main__":
-    generate_all_graphs()
+    visualize()
