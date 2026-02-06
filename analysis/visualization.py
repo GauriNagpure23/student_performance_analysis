@@ -123,10 +123,8 @@ def visualize():
         bar_avg_marks(df)
         line_percentage(df)
         histogram_marks(df)
-        scatter_age_percentage(df)
         heatmap_correlation(df)
         box_plot_marks(df)
-        violin_plot_marks(df)
 
         print("✅ All graphs saved in graphs/ folder")
 
