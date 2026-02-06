@@ -111,7 +111,7 @@ def violin_plot_marks(df):
 # ==============================
 def visualize():
     try:
-        print("📊 Loading cleaned dataset...")
+        print("Loading cleaned dataset...")
 
         # Create graphs folder
         os.makedirs("graphs", exist_ok=True)
