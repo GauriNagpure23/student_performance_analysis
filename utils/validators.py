@@ -1,27 +1,24 @@
 from utils.custom_exceptions import *
 
-def validate_name(name):
-    try:
-        if not name.isalpha():
-            raise InvalidNameError("Name must contain only alphabets")
-        return True
-    except Exception as e:
-        return str(e)
+def validate_class(cls):
+    if str(cls) != "10":
+        return "Only Class 10 students allowed"
+    return True
 
 def validate_age(age):
     try:
         age = int(age)
-        if age < 3 or age > 100:
-            raise InvalidAgeError("Invalid age range")
+        if age < 14 or age > 16:
+            return "Age must be between 14 and 16"
         return True
-    except Exception as e:
-        return str(e)
+    except:
+        return "Invalid age"
 
-def validate_marks(mark):
+def validate_marks(m):
     try:
-        mark = float(mark)
-        if mark < 0 or mark > 100:
-            raise InvalidMarksError("Marks must be 0-100")
+        m = float(m)
+        if m < 0 or m > 100:
+            return "Marks must be 0-100"
         return True
-    except Exception as e:
-        return str(e)
+    except:
+        return "Invalid marks"
