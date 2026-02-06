@@ -3,107 +3,107 @@ from utils.logger import get_logger
 
 logger = get_logger()
 
+SUBJECTS = ["Maths", "Science", "English"]
 
-# ================================
-# Fill marks using student's own average
-# ================================
+# ---------------------------
+# Fill missing marks row-wise
+# ---------------------------
 def fill_marks_row_wise(row):
-    subjects = ["Maths", "Science", "English"]
-    values = row[subjects]
-
-    # If all marks missing → ask user manually
-    if values.isnull().all():
-        print(f"\n Student ID {row['ID']} has NO marks!")
-        for sub in subjects:
-            while True:
-                try:
-                    val = float(input(f"Enter {sub} marks for {row['Name']}: "))
-                    row[sub] = val
-                    break
-                except:
-                    print(" Enter valid numeric marks!")
-
-        return row
-
-    # Otherwise fill missing with student's own average
+    values = row[SUBJECTS]
     avg = values.dropna().mean()
 
-    for sub in subjects:
-        if pd.isna(row[sub]):
-            row[sub] = avg
+    # If some marks missing → fill with student avg
+    if not pd.isna(avg):
+        for sub in SUBJECTS:
+            if pd.isna(row[sub]):
+                row[sub] = avg
 
     return row
 
 
-# ================================
-# MAIN CLEANING FUNCTION
-# ================================
+# ---------------------------
+# Ask user to fix errors
+# ---------------------------
+def manual_fix(row):
+    student_id = row["ID"]
+    name = row["Name"]
+
+    print(f"\n⚠️ Checking Student ID {student_id} | Name: {name}")
+
+    # ---- CLASS CHECK ----
+    if row["Class"] != 10:
+        print(f"❌ Invalid Class found: {row['Class']} (Expected 10)")
+        new_class = input("Enter correct class (should be 10): ")
+        row["Class"] = int(new_class)
+
+    # ---- AGE CHECK ----
+    if pd.isna(row["Age"]) or row["Age"] < 15:
+        print(f"❌ Invalid Age found: {row['Age']}")
+        new_age = input("Enter correct age (>=15): ")
+        row["Age"] = int(new_age)
+
+    # ---- MARKS CHECK ----
+    if row[SUBJECTS].isna().all():
+        print("❌ All marks missing!")
+        for sub in SUBJECTS:
+            mark = input(f"Enter {sub} marks: ")
+            row[sub] = float(mark)
+
+    return row
+
+
+# ---------------------------
+# Main Cleaning Function
+# ---------------------------
 def clean_data():
     try:
         df = pd.read_csv("raw_data/dirty_students.csv")
 
-        # Convert numeric
+        # Convert to numeric
         df["Age"] = pd.to_numeric(df["Age"], errors="coerce")
-        for sub in ["Maths", "Science", "English"]:
+        df["Class"] = pd.to_numeric(df["Class"], errors="coerce")
+
+        for sub in SUBJECTS:
             df[sub] = pd.to_numeric(df[sub], errors="coerce")
 
-        # Keep rows only if ID exists
+        # Keep only rows with ID
         df = df[df["ID"].notnull()]
 
         # Fix duplicate IDs
         dup_ids = df[df.duplicated("ID", keep="first")]
         for idx in dup_ids.index:
-            new_id = df["ID"].max() + 1
-            print(f" Duplicate ID found! Assigning new ID {new_id}")
-            df.at[idx, "ID"] = new_id
+            df.at[idx, "ID"] = df["ID"].max() + 1
 
         # Fill missing names
         df["Name"].fillna("Unknown", inplace=True)
 
-        # Fill missing age with default class 10 age
-        df["Age"].fillna(15, inplace=True)
+        # ---------------- MANUAL ERROR CHECK ----------------
+        # Only rows with errors will be asked
+        error_mask = (
+            (df["Class"] != 10) |
+            (df["Age"].isna()) |
+            (df["Age"] < 15) |
+            (df[SUBJECTS].isna().all(axis=1))
+        )
 
-        # ================= CLASS VALIDATION =================
-        for idx, row in df.iterrows():
-            if row["Class"] != 10:
-                print(f"\n Student ID {row['ID']} has Class = {row['Class']}")
-                while True:
-                    ans = input("Update class to 10? (y/n): ")
-                    if ans.lower() == "y":
-                        df.at[idx, "Class"] = 10
-                        break
-                    elif ans.lower() == "n":
-                        print("Skipping student (keeping wrong class).")
-                        break
-                    else:
-                        print("Enter y or n")
+        df.loc[error_mask] = df[error_mask].apply(manual_fix, axis=1)
 
-        # ================= AGE VALIDATION =================
-        for idx, row in df.iterrows():
-            if row["Age"] < 15:
-                print(f"\n Student ID {row['ID']} has Age = {row['Age']} (Invalid for Class 10)")
-                while True:
-                    try:
-                        new_age = int(input("Enter corrected age (>=15): "))
-                        if new_age >= 15:
-                            df.at[idx, "Age"] = new_age
-                            break
-                        else:
-                            print(" Age must be 15 or above")
-                    except:
-                        print(" Enter valid integer age!")
-
-        # ================= MARKS CLEANING =================
+        # ---------------- AUTO MARK FILL ----------------
         df = df.apply(fill_marks_row_wise, axis=1)
 
         # Save cleaned file
         df.to_csv("cleaned_data/clean_students.csv", index=False)
         logger.info("Preprocessing completed successfully")
 
-        print("\n Cleaned data saved to cleaned_data/clean_students.csv")
+        print("\n✅ Data Cleaning Completed Successfully")
         return df
 
     except Exception as e:
         logger.error(e)
-        print(" Error in preprocessing:", e)
+        print("❌ Error:", e)
         return None
+
+
+# Run
+if __name__ == "__main__":
+    clean_data()
