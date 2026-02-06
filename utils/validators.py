@@ -22,3 +22,8 @@ def validate_marks(m):
         return True
     except:
         return "Invalid marks"
+def validate_name(name):
+    if name.isalpha():
+        return True
+    else:
+        return "Invalid Name"

@@ -1,6 +1,8 @@
 import pandas as pd
 from utils.validators import *
 from utils.logger import get_logger
+from utils.custom_exceptions import InvalidClassError
+
 
 logger = get_logger()
 
@@ -48,11 +50,23 @@ def append_student(name, age, cls, maths, science, english):
             "English": english
         }
 
-        df.loc[len(df)] = row
-        df.to_csv(FILE_PATH, index=False)
+        if validate_class(cls) != True:
+            raise InvalidClassError("Enter details for Class 10 only")
 
-        logger.info("Added new student")
-        return "Student added"
+        # normal validation
+        if validate_age(age) != True:
+            return validate_age(age)
+
+        for mark in [maths, science, english]:
+            if validate_marks(mark) != True:
+                return validate_marks(mark)
+
+        df = pd.read_csv(FILE_PATH)
+
+        # Add student
+        df.loc[len(df)] = [id,name,age,cls,maths,science,english]
+        df.to_csv(FILE_PATH,index=False)
+        return "Student Added"
 
     except Exception as err:
         logger.error("Error adding student: " + str(err))
@@ -74,4 +88,5 @@ def delete_student(name):
     except Exception as err:
         logger.error("Error deleting student: " + str(err))
         return "Delete failed"
-    
+
+

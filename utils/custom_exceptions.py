@@ -6,3 +6,9 @@ class InvalidNameError(Exception):
 
 class InvalidMarksError(Exception):
     pass
+
+class InvalidClassError(Exception):
+    pass
+
+class DuplicateIDError(Exception):
+    pass

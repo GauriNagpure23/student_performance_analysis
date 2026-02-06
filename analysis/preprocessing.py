@@ -1,39 +1,51 @@
 import pandas as pd
-import numpy as np
 from utils.logger import get_logger
 
 logger = get_logger()
 
-def clean_data():
+def fill_marks_row_wise(row):
+    subjects = ["Maths", "Science", "English"]
+    values = row[subjects]
+
+    # Calculate student average from available marks
+    avg = values.dropna().mean()
+
+    for sub in subjects:
+        if pd.isna(row[sub]):
+            row[sub] = avg  # fill with student's own avg
+
+    return row
+
+
+def preprocess():
     try:
         df = pd.read_csv("raw_data/dirty_students.csv")
 
-        # Remove completely empty rows
-        df.dropna(how="all", inplace=True)
+        # Convert to numeric
+        df["Age"] = pd.to_numeric(df["Age"], errors="coerce")
+        for sub in ["Maths","Science","English"]:
+            df[sub] = pd.to_numeric(df[sub], errors="coerce")
 
-        # Clean Name column
-        df["Name"] = df["Name"].astype(str).str.strip().str.title()
-        df["Name"].replace(["None", "Nan", ""], np.nan, inplace=True)
+        # Keep rows if ID exists
+        df = df[df["ID"].notnull()]
+
+        # Fix duplicate IDs
+        dup_ids = df[df.duplicated("ID", keep="first")]
+        for idx in dup_ids.index:
+            df.at[idx, "ID"] = df["ID"].max() + 1
+
+        # Fill missing names
         df["Name"].fillna("Unknown", inplace=True)
 
-        # Convert Age
-        df["Age"] = pd.to_numeric(df["Age"], errors="coerce")
-        df.loc[(df["Age"] < 5) | (df["Age"] > 30), "Age"] = np.nan
-        df["Age"].fillna(df["Age"].mean(), inplace=True)
+        # Fill missing age with class allowed avg age (15)
+        df["Age"].fillna(15, inplace=True)
 
-        # Subjects
-        subjects = ["Maths", "Science", "English"]
-        for sub in subjects:
-            df[sub] = pd.to_numeric(df[sub], errors="coerce")
-            df.loc[(df[sub] < 0) | (df[sub] > 100), sub] = np.nan
-            df[sub].fillna(df[sub].mean(), inplace=True)
+        # Fill marks using student's own average
+        df = df.apply(fill_marks_row_wise, axis=1)
 
-        # Remove duplicates
-        df.drop_duplicates(inplace=True)
-
-        # Save cleaned file
-        df.to_csv("cleaned_data/clean_students.csv", index=False)
-        logger.info("Data cleaned successfully")
+        # Save cleaned data
+        df.to_csv("processed_data/cleaned_students.csv", index=False)
+        logger.info("Preprocessing completed successfully")
 
         return df
 

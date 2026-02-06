@@ -1,76 +1,127 @@
-# ADDED COMMENT
-
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from utils.logger import get_logger
+import os
 
-logger = get_logger()
+# Create graphs folder
+os.makedirs("graphs", exist_ok=True)
 
-def visualize():
-    try:
-        df = pd.read_csv("cleaned_data/clean_students.csv")
+# Load cleaned data
+df = pd.read_csv("processed_data/cleaned_students.csv")
 
-        # Calculate Total & Percentage
-        df["Total"] = df[["Maths", "Science", "English"]].sum(axis=1)
-        df["Percentage"] = df["Total"] / 3
+subjects = ["Maths", "Science", "English"]
 
-        # -------------------------------
-        # Average Marks per Subject
-        subject_avg = df[["Maths","Science","English"]].mean()
-        plt.figure()
-        subject_avg.plot(kind="bar", title="Average Marks per Subject")
-        plt.ylabel("Marks")
-        plt.savefig("graphs/subject_average.png")
-        plt.close()
 
-        # -------------------------------
-        # Student Percentage Comparison
-        plt.figure(figsize=(10,5))
-        plt.bar(df["Name"], df["Percentage"])
-        plt.title("Student Percentage Comparison")
-        plt.xlabel("Student Name")
-        plt.ylabel("Percentage")
-        plt.xticks(rotation=45)
-        plt.savefig("graphs/student_percentage.png")
-        plt.close()
+# ==============================
+# 1️⃣ BAR GRAPH - Average Marks
+# ==============================
+def bar_avg_marks():
+    avg_marks = df[subjects].mean()
 
-        # -------------------------------
-        # Percentage Histogram
-        plt.figure()
-        plt.hist(df["Percentage"], bins=10)
-        plt.title("Percentage Distribution")
-        plt.xlabel("Percentage")
-        plt.ylabel("Count")
-        plt.savefig("graphs/percentage_histogram.png")
-        plt.close()
+    plt.figure(figsize=(6,4))
+    bars = plt.bar(subjects, avg_marks)
 
-        # -------------------------------
-        #Correlation Heatmap
-        plt.figure(figsize=(8,6))
-        sns.heatmap(df[["Maths","Science","English","Age"]].corr(), annot=True)
-        plt.title("Correlation Heatmap")
-        plt.savefig("graphs/correlation_heatmap.png")
-        plt.close()
+    # Add labels
+    for bar in bars:
+        y = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, y, round(y,2), ha='center')
 
-        # -------------------------------
-        # Box Plot (Outliers)
-        plt.figure()
-        sns.boxplot(data=df[["Maths","Science","English"]])
-        plt.title("Marks Outliers Boxplot")
-        plt.savefig("graphs/marks_boxplot.png")
-        plt.close()
+    plt.title("Average Marks of Class 10 Students")
+    plt.ylabel("Marks")
+    plt.savefig("graphs/bar_avg_marks.png")
+    plt.close()
 
-        # -------------------------------
-        # Print Toppers
-        for sub in ["Maths", "Science", "English"]:
-            topper = df.loc[df[sub].idxmax()]
-            print(f"Topper in {sub}: {topper['Name']} - {topper[sub]}")
 
-        logger.info("Graphs generated and saved successfully")
-        return "Graphs saved in graphs/ folder"
+# ==============================
+# 2️⃣ LINE GRAPH - Student Percentage Trend
+# ==============================
+def line_percentage():
+    df["Percentage"] = df[subjects].mean(axis=1)
 
-    except Exception as e:
-        logger.error(f"Visualization error: {e}")
-        return str(e)
+    plt.figure(figsize=(8,4))
+    plt.plot(df["ID"], df["Percentage"], marker='o')
+    plt.title("Student Percentage Trend")
+    plt.xlabel("Student ID")
+    plt.ylabel("Percentage")
+    plt.savefig("graphs/line_percentage.png")
+    plt.close()
+
+
+# ==============================
+# 3️⃣ HISTOGRAM - Marks Distribution
+# ==============================
+def histogram_marks():
+    plt.figure(figsize=(6,4))
+    plt.hist(df["Maths"], bins=10)
+    plt.title("Maths Marks Distribution")
+    plt.xlabel("Marks")
+    plt.ylabel("Frequency")
+    plt.savefig("graphs/hist_maths.png")
+    plt.close()
+
+
+# ==============================
+# 4️⃣ SCATTER PLOT - Age vs Percentage
+# ==============================
+def scatter_age_percentage():
+    df["Percentage"] = df[subjects].mean(axis=1)
+
+    plt.figure(figsize=(6,4))
+    plt.scatter(df["Age"], df["Percentage"])
+    plt.title("Age vs Percentage")
+    plt.xlabel("Age")
+    plt.ylabel("Percentage")
+    plt.savefig("graphs/scatter_age_percentage.png")
+    plt.close()
+
+
+# ==============================
+# 5️⃣ HEATMAP - Correlation
+# ==============================
+def heatmap_correlation():
+    plt.figure(figsize=(6,4))
+    corr = df[subjects + ["Age"]].corr()
+    sns.heatmap(corr, annot=True)
+    plt.title("Correlation Heatmap")
+    plt.savefig("graphs/heatmap_corr.png")
+    plt.close()
+
+
+# ==============================
+# 6️⃣ BOX PLOT - Outliers Detection
+# ==============================
+def box_plot_marks():
+    plt.figure(figsize=(6,4))
+    sns.boxplot(data=df[subjects])
+    plt.title("Box Plot for Marks")
+    plt.savefig("graphs/box_marks.png")
+    plt.close()
+
+
+# ==============================
+# 7️⃣ VIOLIN PLOT - Marks Distribution Shape
+# ==============================
+def violin_plot_marks():
+    plt.figure(figsize=(6,4))
+    sns.violinplot(data=df[subjects])
+    plt.title("Violin Plot for Marks")
+    plt.savefig("graphs/violin_marks.png")
+    plt.close()
+
+
+# ==============================
+# RUN ALL GRAPHS
+# ==============================
+def generate_all_graphs():
+    bar_avg_marks()
+    line_percentage()
+    histogram_marks()
+    scatter_age_percentage()
+    heatmap_correlation()
+    box_plot_marks()
+    violin_plot_marks()
+    print("All graphs saved in graphs/ folder")
+
+
+if __name__ == "__main__":
+    generate_all_graphs()
