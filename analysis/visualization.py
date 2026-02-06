@@ -7,7 +7,7 @@ import os
 os.makedirs("graphs", exist_ok=True)
 
 # Load cleaned data
-df = pd.read_csv("cleaned_data/cleaned_students.csv")
+df = pd.read_csv("cleaned_data/clean_students.csv")
 
 subjects = ["Maths", "Science", "English"]
 
