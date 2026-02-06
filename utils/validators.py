@@ -8,8 +8,8 @@ def validate_class(cls):
 def validate_age(age):
     try:
         age = int(age)
-        if age < 15 or age > 16:
-            return "Age must be between 14 and 16"
+        if age < 15:
+            return "Age must be more than 14"
         return True
     except:
         return "Invalid age"

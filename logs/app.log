@@ -10,3 +10,4 @@
 2026-02-05 11:14:53,021 - INFO - Data cleaned successfully
 2026-02-05 11:14:59,558 - INFO - Graphs generated and saved successfully
 2026-02-06 15:11:09,701 - ERROR - Cannot save file into a non-existent directory: 'processed_data'
+2026-02-06 15:12:20,545 - INFO - Preprocessing completed successfully
