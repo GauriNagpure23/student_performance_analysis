@@ -44,7 +44,7 @@ def clean_data():
         df = df.apply(fill_marks_row_wise, axis=1)
 
         # Save cleaned data
-        df.to_csv("processed_data/cleaned_students.csv", index=False)
+        df.to_csv("cleaned_data/clean_students.csv", index=False)
         logger.info("Preprocessing completed successfully")
 
         return df
