@@ -17,7 +17,7 @@ def fill_marks_row_wise(row):
     return row
 
 
-def preprocess():
+def clean_data():
     try:
         df = pd.read_csv("raw_data/dirty_students.csv")
 
