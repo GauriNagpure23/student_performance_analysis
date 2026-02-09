@@ -131,7 +131,7 @@ def visualize():
         box_plot_marks(df)
         violin_plot_marks(df)
 
-        print("✅ All graphs saved in graphs/ folder")
+        print("All graphs saved in graphs/ folder")
 
     except Exception as e:
         print("Visualization Error:", e)
