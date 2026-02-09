@@ -88,5 +88,7 @@ def delete_student(name):
     except Exception as err:
         logger.error("Error deleting student: " + str(err))
         return "Delete failed"
+    
+
 
 
