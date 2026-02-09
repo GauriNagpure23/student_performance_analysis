@@ -134,7 +134,7 @@ def visualize():
         print("✅ All graphs saved in graphs/ folder")
 
     except Exception as e:
-        print("❌ Visualization Error:", e)
+        print("Visualization Error:", e)
 
 
 # Run directly
